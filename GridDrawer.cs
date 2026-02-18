@@ -63,7 +63,7 @@ public class GridDrawer : IDrawable
 
     public void DrawCrossAnimation(ICanvas canvas, int row, int col, float progress)
     {
-        // Анимация крестика - постепенное появление двух линий
+        // Анимация крестика - рисование двух пересекающихся диагональных линий (буква X)
         if (progress <= 0) return;
         
         var center = GetCellCenter(row, col);
@@ -77,22 +77,27 @@ public class GridDrawer : IDrawable
         canvas.StrokeSize = 8;
         canvas.StrokeLineCap = LineCap.Round;
         
-        // Первая диагональ (слева сверху - направо вниз)
-        float diag1End = halfSize * progress;
-        canvas.DrawLine(
-            center.X - halfSize, center.Y - halfSize,
-            center.X - halfSize + diag1End, center.Y - halfSize + diag1End);
+        // Полные координаты для диагоналей
+        float x1 = center.X - halfSize;
+        float y1 = center.Y - halfSize;
+        float x2 = center.X + halfSize;
+        float y2 = center.Y + halfSize;
         
-        // Вторая диагональ (справа сверху - налево вниз)
-        // Запускается после первой, создавая эффект последовательного рисования
-        if (progress > 0.5f)
-        {
-            float adjustedProgress = (progress - 0.5f) * 2; // Нормализуем прогресс для второй линии
-            float diag2End = halfSize * adjustedProgress;
-            canvas.DrawLine(
-                center.X + halfSize, center.Y - halfSize,
-                center.X + halfSize - diag2End, center.Y - halfSize + diag2End);
-        }
+        // Первая диагональ: сверху слева - вниз справа
+        float progress1 = Math.Min(1.0f, progress * 2.0f); // Завершается за первую половину анимации
+        float endX1 = x1 + (x2 - x1) * progress1;
+        float endY1 = y1 + (y2 - y1) * progress1;
+        canvas.DrawLine(x1, y1, endX1, endY1);
+        
+        // Вторая диагональ: сверху справа - вниз слева
+        float progress2 = Math.Max(0.0f, (progress - 0.5f) * 2.0f); // Начинается со второй половины анимации
+        float startX2 = center.X + halfSize;
+        float startY2 = center.Y - halfSize;
+        float endX2 = center.X - halfSize;
+        float endY2 = center.Y + halfSize;
+        float currentX2 = startX2 - (startX2 - endX2) * progress2;
+        float currentY2 = startY2 + (endY2 - startY2) * progress2;
+        canvas.DrawLine(startX2, startY2, currentX2, currentY2);
     }
 
     public void DrawCircleAnimation(ICanvas canvas, int row, int col, float progress)
