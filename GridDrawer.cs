@@ -3,15 +3,44 @@ using Microsoft.Maui.Graphics;
 
 namespace MauiTicTac;
 
+/// <summary>
+/// Класс для отрисовки сетки и игровых элементов в игре "Крестики-нолики"
+/// Основной функционал: рисование сетки, конвертация координат, анимация крестиков и ноликов
+/// </summary>
 public class GridDrawer : IDrawable
 {
+    /// <summary>
+    /// Статический экземпляр класса GridDrawer для глобального доступа
+    /// Используется для вызова методов рисования из других частей приложения
+    /// </summary>
     public static readonly GridDrawer Instance = new();
 
+    /// <summary>
+    /// Количество строк в сетке игры
+    /// </summary>
     private const int Rows = 20;
+
+    /// <summary>
+    /// Количество столбцов в сетке игры
+    /// </summary>
     private const int Cols = 20;
+
+    /// <summary>
+    /// Ширина сетки в пикселях (800px)
+    /// </summary>
     public const int GridWidth = 800;
+
+    /// <summary>
+    /// Высота сетки в пикселях (800px)
+    /// </summary>
     public const int GridHeight = 800;
 
+    /// <summary>
+    /// Отрисовывает основную сетку игры 20x20
+    /// Метод рисует вертикальные и горизонтальные линии, формирующие ячейки
+    /// </summary>
+    /// <param name="canvas">Контекст рисования для отрисовки графических элементов</param>
+    /// <param name="dirtyRect">Прямоугольная область, которая нуждается в перерисовке</param>
     public virtual void Draw(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeColor = Colors.Black;
@@ -35,6 +64,12 @@ public class GridDrawer : IDrawable
         }
     }
 
+    /// <summary>
+    /// Преобразует экранные координаты точки в индексы ячейки сетки
+    /// Используется для определения, по какой ячейке был произведен клик
+    /// </summary>
+    /// <param name="point">Точка с координатами X и Y в пикселях</param>
+    /// <returns>Кортеж с индексами строки и столбца ячейки (row, col)</returns>
     public (int row, int col) GetCellFromPoint(PointF point)
     {
         float cellWidth = GridWidth / Cols;
@@ -50,6 +85,13 @@ public class GridDrawer : IDrawable
         return (row, col);
     }
 
+    /// <summary>
+    /// Вычисляет центральную точку заданной ячейки сетки
+    /// Используется для позиционирования игровых элементов (крестиков, ноликов) в центре ячейки
+    /// </summary>
+    /// <param name="row">Индекс строки ячейки (0-19)</param>
+    /// <param name="col">Индекс столбца ячейки (0-19)</param>
+    /// <returns>Точка с координатами центра ячейки</returns>
     public PointF GetCellCenter(int row, int col)
     {
         float cellWidth = GridWidth / Cols;
@@ -61,9 +103,17 @@ public class GridDrawer : IDrawable
         return new PointF(centerX, centerY);
     }
 
+    /// <summary>
+    /// Анимированная отрисовка крестика в заданной ячейке
+    /// Рисует две пересекающиеся диагональные линии, формирующие букву X
+    /// Анимация происходит постепенно: сначала одна диагональ, затем вторая
+    /// </summary>
+    /// <param name="canvas">Контекст рисования для отрисовки графических элементов</param>
+    /// <param name="row">Индекс строки ячейки (0-19)</param>
+    /// <param name="col">Индекс столбца ячейки (0-19)</param>
+    /// <param name="progress">Прогресс анимации (0.0 - начало, 1.0 - завершение)</param>
     public void DrawCrossAnimation(ICanvas canvas, int row, int col, float progress)
     {
-        // Анимация крестика - рисование двух пересекающихся диагональных линий (буква X)
         if (progress <= 0) return;
         
         var center = GetCellCenter(row, col);
@@ -100,9 +150,17 @@ public class GridDrawer : IDrawable
         canvas.DrawLine(startX2, startY2, currentX2, currentY2);
     }
 
+    /// <summary>
+    /// Анимированная отрисовка нолика в заданной ячейке
+    /// Рисует окружность постепенно, создавая эффект рисования по часовой стрелке
+    /// Используется для визуализации хода игрока, ставящего нолик
+    /// </summary>
+    /// <param name="canvas">Контекст рисования для отрисовки графических элементов</param>
+    /// <param name="row">Индекс строки ячейки (0-19)</param>
+    /// <param name="col">Индекс столбца ячейки (0-19)</param>
+    /// <param name="progress">Прогресс анимации (0.0 - начало, 1.0 - завершение)</param>
     public void DrawCircleAnimation(ICanvas canvas, int row, int col, float progress)
     {
-        // Анимация нолика - постепенное рисование окружности
         if (progress <= 0) return;
         
         var center = GetCellCenter(row, col);
