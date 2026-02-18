@@ -12,7 +12,7 @@ public class GridDrawer : IDrawable
     public const int GridWidth = 800;
     public const int GridHeight = 800;
 
-    public void Draw(ICanvas canvas, RectF dirtyRect)
+    public virtual void Draw(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeColor = Colors.Black;
         canvas.StrokeSize = 1;
