@@ -115,30 +115,30 @@ public class GridDrawer : IDrawable
     public void DrawCrossAnimation(ICanvas canvas, int row, int col, float progress)
     {
         if (progress <= 0) return;
-        
+
         var center = GetCellCenter(row, col);
         float cellWidth = GridWidth / Cols;
         float cellHeight = GridHeight / Rows;
         float size = Math.Min(cellWidth, cellHeight) * 0.8f;
         float halfSize = size / 2;
-        
+
         // Установка стиля линии
         canvas.StrokeColor = Colors.Red;
         canvas.StrokeSize = 8;
         canvas.StrokeLineCap = LineCap.Round;
-        
+
         // Полные координаты для диагоналей
         float x1 = center.X - halfSize;
         float y1 = center.Y - halfSize;
         float x2 = center.X + halfSize;
         float y2 = center.Y + halfSize;
-        
+
         // Первая диагональ: сверху слева - вниз справа
         float progress1 = Math.Min(1.0f, progress * 2.0f); // Завершается за первую половину анимации
         float endX1 = x1 + (x2 - x1) * progress1;
         float endY1 = y1 + (y2 - y1) * progress1;
         canvas.DrawLine(x1, y1, endX1, endY1);
-        
+
         // Вторая диагональ: сверху справа - вниз слева
         float progress2 = Math.Max(0.0f, (progress - 0.5f) * 2.0f); // Начинается со второй половины анимации
         float startX2 = center.X + halfSize;
@@ -151,40 +151,67 @@ public class GridDrawer : IDrawable
     }
 
     /// <summary>
-    /// Анимированная отрисовка нолика в заданной ячейке
-    /// Рисует окружность постепенно, создавая эффект рисования по часовой стрелке
-    /// Используется для визуализации хода игрока, ставящего нолик
+    /// Анимированная отрисовка нолика в виде овала (эллипса) в заданной ячейке.
+    /// Анимация начинается сверху и развивается по часовой стрелке.
+    /// Размеры овала соответствуют размерам ячейки с небольшими отступами.
     /// </summary>
-    /// <param name="canvas">Контекст рисования для отрисовки графических элементов</param>
-    /// <param name="row">Индекс строки ячейки (0-19)</param>
-    /// <param name="col">Индекс столбца ячейки (0-19)</param>
+    /// <param name="canvas">Контекст рисования</param>
+    /// <param name="row">Индекс строки ячейки</param>
+    /// <param name="col">Индекс столбца ячейки</param>
     /// <param name="progress">Прогресс анимации (0.0 - начало, 1.0 - завершение)</param>
     public void DrawCircleAnimation(ICanvas canvas, int row, int col, float progress)
     {
-        if (progress <= 0) return;
-        
-        var center = GetCellCenter(row, col);
+        // Ограничиваем прогресс в диапазоне [0, 1]
+        progress = Math.Clamp(progress, 0f, 0.99f);
+
+        // Размеры ячейки
         float cellWidth = GridWidth / Cols;
         float cellHeight = GridHeight / Rows;
-        float radius = Math.Min(cellWidth, cellHeight) * 0.4f;
-        
-        // Установка стиля линии
+
+        // Центр ячейки
+        var center = GetCellCenter(row, col);
+
+        // Отступы: чтобы овал не прижимался к краям
+        float paddingX = cellWidth * 0.2f;  // 10% слева/справа
+        float paddingY = cellHeight * 0.1f; // 10% сверху/снизу
+
+        // Ширина и высота овала
+        float ovalWidth = cellWidth - 2 * paddingX;
+        float ovalHeight = cellHeight - 2 * paddingY;
+
+        // Параметры линии
+        float strokeWidth = 8;
+
+        // Настройка стиля
         canvas.StrokeColor = Colors.Blue;
-        canvas.StrokeSize = 8;
-        canvas.StrokeLineCap = LineCap.Round;
-        
-        // Рисуем дугу, начиная с 0 и заканчивая в progress * 2π
-        // Добавляем небольшой начальный угол для визуального эффекта
-        float startAngle = 0;
-        float endAngle = (float)(Math.PI * 2 * progress);
-        
-        // Для лучшего визуального эффекта делаем разрыв в начале
+        canvas.StrokeSize = strokeWidth;
+        canvas.StrokeLineCap = LineCap.Round; // Плавные концы — ключ к плавности
+
+        // Рисуем только если прогресс > 0
         if (progress > 0)
         {
+            // Прямоугольник, в который вписан овал
+            float x = center.X - ovalWidth / 2;
+            float y = center.Y - ovalHeight / 2;
+
+
+            float startAngle = 90f;
+            // Конечный угол: зависит от прогресса
+            float endAngle = startAngle + 360 * progress;
+
+            // Рисуем дугу по часовой стрелке, без замыкания);
+
+            // Рисуем дугу по часовой стрелке, без замыкания
             canvas.DrawArc(
-                center.X - radius, center.Y - radius,
-                center.X + radius, center.Y + radius,
-                startAngle, endAngle, false, false);
+                x: x,
+                y: y,
+                width: ovalWidth,
+                height: ovalHeight,
+                startAngle: startAngle,
+                endAngle: endAngle,
+                clockwise: false,
+                closed: false      // не замыкаем в центр
+            );
         }
     }
 }

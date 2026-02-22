@@ -9,7 +9,7 @@
             x:Name="GraphicsViewGrid"
             WidthRequest="800"
             HeightRequest="800"
-            Drawable="{x:Static local:MainPage.AnimatedDrawer}"
+            Drawable="{x:Static local:MainPage.AnimatedDrawerCircle}"
             HorizontalOptions="Center"
             VerticalOptions="Center">
             <GraphicsView.GestureRecognizers>
