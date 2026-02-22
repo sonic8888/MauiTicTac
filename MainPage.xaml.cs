@@ -12,13 +12,13 @@ namespace MauiTicTac;
 public partial class MainPage : ContentPage
 {
 
-    enum Player
+    public enum Player
     {
         X,
         O,
     }
 
-    private Player currentPlayer = Player.X;
+    public static Player currentPlayer = Player.X;
     /// <summary>
     /// Количество строк в сетке игры
     /// </summary>
@@ -33,27 +33,31 @@ public partial class MainPage : ContentPage
     /// Статический экземпляр анимированного drawer для отрисовки игровых элементов
     /// Управляет отрисовкой анимированных крестиков
     /// </summary>
-    private static readonly AnimatedGridDrawerCross animatedDrawerCross = new();
+    // private static readonly AnimatedGridDrawerCross animatedDrawerCross = new();
 
 
-    private static readonly AnimatedGridDrawerCircle animatedDrawerCircle = new();
-
-    /// <summary>
-    /// Свойство для доступа к анимированному drawer
-    /// Используется для привязки в XAML
-    /// </summary>
+    // private static readonly AnimatedGridDrawerCircle animatedDrawerCircle = new();
 
     /// <summary>
     /// Свойство для доступа к анимированному drawer
     /// Используется для привязки в XAML
     /// </summary>
-    private static AnimatedGridDrawerCross AnimatedDrawerCross => animatedDrawerCross;
-    private static AnimatedGridDrawerCircle AnimatedDrawerCircle => animatedDrawerCircle;
+
+    /// <summary>
+    /// Свойство для доступа к анимированному drawer
+    /// Используется для привязки в XAML
+    /// </summary>
+    // private static AnimatedGridDrawerCross AnimatedDrawerCross => animatedDrawerCross;
+    // private static AnimatedGridDrawerCircle AnimatedDrawerCircle => animatedDrawerCircle;
 
     /// <summary>
     /// Конструктор класса MainPage
     /// Инициализирует компоненты пользовательского интерфейса
     /// </summary>
+    /// 
+    /// 
+    private static readonly AnimatedGridDrawer animatedDrawer = new();
+    private static AnimatedGridDrawer AnimatedDrawer => animatedDrawer;
     public MainPage()
     {
         InitializeComponent();
@@ -70,27 +74,20 @@ public partial class MainPage : ContentPage
     {
         if (sender is GraphicsView graphicsView)
         {
-            // Get the tap position
             var tapPoint = e.GetPosition(graphicsView);
-
             if (tapPoint != null)
             {
-                // Use GridDrawer to convert point to cell
                 var (row, col) = GridDrawer.Instance.GetCellFromPoint(tapPoint.Value);
-
-                // Calculate cell index (0-399)
                 int cellIndex = row * Cols + col;
 
-                // Show message with cell number
-                // await DisplayAlert("Cell Clicked", $"You clicked cell {cellIndex} (Row: {row}, Col: {col})", "OK");
-
-                // Добавляем крестик для анимации
-                // animatedDrawerCross.AddCross(row, col);
-                animatedDrawerCircle.AddCircle(row, col);
+                // Добавляем символ в зависимости от currentPlayer
+                animatedDrawer.AddSymbol(row, col);
 
                 // Запускаем анимацию
-                // await AnimateCross(graphicsView, row, col);
-                await AnimateCircle(graphicsView, row, col);
+                await AnimateSymbol(graphicsView, row, col);
+
+                // Меняем игрока после хода
+                // currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
             }
         }
     }
@@ -102,23 +99,23 @@ public partial class MainPage : ContentPage
     /// <param name="graphicsView">Элемент GraphicsView, который нужно обновить</param>
     /// <param name="row">Индекс строки ячейки, где рисуется крестик</param>
     /// <param name="col">Индекс столбца ячейки, где рисуется крестик</param>
-    private async Task AnimateCross(GraphicsView graphicsView, int row, int col)
-    {
-        const int animationSteps = 30;
-        const int delayMs = 30;
+    // private async Task AnimateCross(GraphicsView graphicsView, int row, int col)
+    // {
+    //     const int animationSteps = 30;
+    //     const int delayMs = 30;
 
-        for (int i = 1; i <= animationSteps; i++)
-        {
-            float progress = (float)i / animationSteps;
-            animatedDrawerCross.SetCrossProgress(row, col, progress);
+    //     for (int i = 1; i <= animationSteps; i++)
+    //     {
+    //         float progress = (float)i / animationSteps;
+    //         animatedDrawerCross.SetCrossProgress(row, col, progress);
 
-            // Обновляем GraphicsView
-            graphicsView.Invalidate();
+    //         // Обновляем GraphicsView
+    //         graphicsView.Invalidate();
 
-            // Задержка для плавности анимации
-            await Task.Delay(delayMs);
-        }
-    }
+    //         // Задержка для плавности анимации
+    //         await Task.Delay(delayMs);
+    //     }
+    // }
 
     /// <summary>
     /// Анимирует процесс рисования нолика в указанной ячейке
@@ -127,19 +124,33 @@ public partial class MainPage : ContentPage
     /// <param name="graphicsView">Элемент GraphicsView, который нужно обновить</param>
     /// <param name="row">Индекс строки ячейки, где рисуется крестик</param>
     /// <param name="col">Индекс столбца ячейки, где рисуется крестик</param>
-    private async Task AnimateCircle(GraphicsView graphicsView, int row, int col)
+    // private async Task AnimateCircle(GraphicsView graphicsView, int row, int col)
+    // {
+    //     const int animationSteps = 30;
+    //     const int delayMs = 30;
+    //     for (int i = 1; i <= animationSteps; i++)
+    //     {
+    //         float progress = (float)i / animationSteps;
+    //         animatedDrawerCircle.SetCircleProgress(row, col, progress);
+
+    //         // Обновляем GraphicsView
+    //         graphicsView.Invalidate();
+
+    //         // Задержка для плавности анимации
+    //         await Task.Delay(delayMs);
+    //     }
+    // }
+
+    private async Task AnimateSymbol(GraphicsView graphicsView, int row, int col)
     {
         const int animationSteps = 30;
         const int delayMs = 30;
+
         for (int i = 1; i <= animationSteps; i++)
         {
             float progress = (float)i / animationSteps;
-            animatedDrawerCircle.SetCircleProgress(row, col, progress);
-
-            // Обновляем GraphicsView
+            animatedDrawer.SetProgress(row, col, progress);
             graphicsView.Invalidate();
-
-            // Задержка для плавности анимации
             await Task.Delay(delayMs);
         }
     }
@@ -261,5 +272,7 @@ public partial class MainPage : ContentPage
             }
         }
     }
+
+
 }
 
