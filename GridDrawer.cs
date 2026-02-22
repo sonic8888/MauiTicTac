@@ -43,7 +43,7 @@ public class GridDrawer : IDrawable
     /// <param name="dirtyRect">Прямоугольная область, которая нуждается в перерисовке</param>
     public virtual void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.StrokeColor = Colors.Black;
+        canvas.StrokeColor = Colors.White;
         canvas.StrokeSize = 1;
 
         float cellWidth = GridWidth / Cols;
