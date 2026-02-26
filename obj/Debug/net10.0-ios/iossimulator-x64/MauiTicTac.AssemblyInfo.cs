@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+f3978f5d0cd6eae7c032b8d6feca014afc2cfdd1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+ed8742c626c36584a6fcacea22fe67b5633c06aa")]
 [assembly: System.Reflection.AssemblyProductAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
