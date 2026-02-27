@@ -1,4 +1,4 @@
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
         O,
     }
 
-    public static Player currentPlayer = Player.X;
+    public static Player currentPlayer = Player.O;
     /// <summary>
     /// Количество строк в сетке игры
     /// </summary>
