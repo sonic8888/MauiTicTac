@@ -37,7 +37,7 @@ public static class StartGame
     /// </example>
     /// <seealso cref="GameLogic.countWinner"/>
     /// <seealso cref="BoardCell"/>
-    static void InitBoard(string[,] board)
+    public static void InitBoard(string[,] board)
     {
         if (board == null)
             throw new InvalidOperationException("Игровая доска не инициализирована.");
@@ -95,7 +95,7 @@ public static class StartGame
     /// <exception cref="ArgumentNullException">Если board — null.</exception>
     /// <exception cref="IndexOutOfRangeException">Если индексы вне диапазона.</exception>
     /// <exception cref="ArgumentException">Если symbol не "X" и не "O".</exception>
-    static void SetBoard(string[,] board, int row, int column, string symbol)
+    public static void SetBoard(string[,] board, int row, int column, string symbol)
     {
         if (board == null)
             throw new ArgumentNullException(nameof(board));

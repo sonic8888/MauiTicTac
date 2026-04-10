@@ -864,10 +864,10 @@ public class GameLogic
         SortToMaxValue(list);
         var cell = SelectCell(list);
         System.Console.WriteLine($"Select Cell:{cell}");
-        foreach (var item in list)
-        {
-            System.Console.WriteLine(item);
-        }
+        // foreach (var item in list)
+        // {
+        //     System.Console.WriteLine(item);
+        // }
         // System.Console.WriteLine(list[0]);
         // System.Console.WriteLine(list[list.Count - 1]);
         return cell;

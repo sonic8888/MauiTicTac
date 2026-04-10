@@ -3,6 +3,8 @@ using Microsoft.Maui.Graphics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+
+
 namespace MauiTicTac;
 
 /// <summary>
@@ -18,7 +20,7 @@ public partial class MainPage : ContentPage
         O,
     }
 
-    public static Player currentPlayer = Player.O;
+    public static Player currentPlayer = Player.X;
     /// <summary>
     /// Количество строк в сетке игры
     /// </summary>
@@ -28,6 +30,7 @@ public partial class MainPage : ContentPage
     /// Количество столбцов в сетке игры
     /// </summary>
     private const int Cols = 20;
+    private GameLogic gameLogic;
 
     /// <summary>
     /// Статический экземпляр анимированного drawer для отрисовки игровых элементов
@@ -61,6 +64,9 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        StartGame.InitBoard(StartGame.board);
+        gameLogic = new GameLogic();
+        // StartGame.SetBoard(StartGame.board, 20, 20, GameLogic.O);
     }
 
     /// <summary>
@@ -72,6 +78,7 @@ public partial class MainPage : ContentPage
     /// <param name="e">Аргументы события нажатия, содержащие координаты клика</param>
     private async void OnGridTapped(object sender, TappedEventArgs e)
     {
+
         if (sender is GraphicsView graphicsView)
         {
             var tapPoint = e.GetPosition(graphicsView);
@@ -86,12 +93,24 @@ public partial class MainPage : ContentPage
                 // Запускаем анимацию
                 await AnimateSymbol(graphicsView, row, col);
 
+                StartGame.SetBoard(StartGame.board, row, col, GameLogic.X);
+
                 // Меняем игрока после хода
-                // currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+                currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+                NextStep(StartGame.board, graphicsView);
             }
         }
     }
 
+
+    private async void NextStep(string[,] board, GraphicsView graphicsView)
+    {
+        var nextCell = gameLogic.NextMove(board);
+        StartGame.SetBoard(board, nextCell.Row, nextCell.Column, GameLogic.O);
+        animatedDrawer.AddSymbol(nextCell.Row, nextCell.Column);
+        await AnimateSymbol(graphicsView, nextCell.Row, nextCell.Column);
+        currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+    }
     /// <summary>
     /// Анимирует процесс рисования крестика в указанной ячейке
     /// Разбивает анимацию на несколько шагов для плавного визуального эффекта

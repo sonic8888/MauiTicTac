@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+4d229b41c6bf25b52bd5bf6d23335dfbe364edcf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+dfd8d5d1b595c427163ab281afe80f72c2243f6d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MauiTicTac")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
