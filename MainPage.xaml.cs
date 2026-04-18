@@ -94,6 +94,9 @@ public partial class MainPage : ContentPage
                 await AnimateSymbol(graphicsView, row, col);
 
                 StartGame.SetBoard(StartGame.board, row, col, GameLogic.X);
+                if (gameLogic.CheckWiner(StartGame.board)){
+                    System.Console.WriteLine("Winer X");
+                }
 
                 // Меняем игрока после хода
                 currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
@@ -107,6 +110,9 @@ public partial class MainPage : ContentPage
     {
         var nextCell = gameLogic.NextMove(board);
         StartGame.SetBoard(board, nextCell.Row, nextCell.Column, GameLogic.O);
+            if (gameLogic.CheckWiner(StartGame.board)){
+                    System.Console.WriteLine("Winer O");
+                }
         animatedDrawer.AddSymbol(nextCell.Row, nextCell.Column);
         await AnimateSymbol(graphicsView, nextCell.Row, nextCell.Column);
         currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;

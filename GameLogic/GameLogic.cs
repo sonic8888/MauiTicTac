@@ -662,9 +662,17 @@ public class GameLogic
 
     public static void Message(BoardCell[] lineWinner, string winner, int winnerLostIndex)
     {
-        System.Console.WriteLine($"Winner:{winner} lostIndex:{winnerLostIndex}");
-        foreach (var cell in lineWinner)
-            System.Console.WriteLine($"({cell.Row},{cell.Column}) = {cell.Player}");
+        // System.Console.WriteLine($"Winner:{winner} lostIndex:{winnerLostIndex}");
+        // foreach (var cell in lineWinner)
+        //     System.Console.WriteLine($"({cell.Row},{cell.Column}) = {cell.Player}");
+        BoardCell[] winerCells = new BoardCell[5];
+        Array.Copy(lineWinner, winnerLostIndex - 4, winerCells, 0, 5);
+        // System.Console.WriteLine("////////////////////////////////////////////////////////////");
+        // foreach (var cell in winerCells)
+        //     System.Console.WriteLine($"({cell.Row},{cell.Column}) = {cell.Player}");
+        PointF start = GridDrawer.GetCellCenter(winerCells[0].Row, winerCells[0].Column);
+        PointF end = GridDrawer.GetCellCenter(winerCells[winerCells.Length - 1].Row, winerCells[winerCells.Length - 1].Column);
+        System.Console.WriteLine($"({start.X},{start.Y}) -> ({end.X},{end.Y})");
     }
 
 
@@ -687,7 +695,7 @@ public class GameLogic
     /// <seealso cref="TraverseBoard(string[,], Func{BoardCell[], bool})"/>
     /// <seealso cref="CallWinner(BoardCell[])"/>
     /// <seealso cref="Notify"/>
-    public bool FindWinner(string[,] board)
+    public bool CheckWiner(string[,] board)
     {
         return TraverseBoard(board, CallWinner);
     }
@@ -721,7 +729,7 @@ public class GameLogic
     /// </example>
     /// <seealso cref="IsWin(BoardCell[], string, string, int, out string, out int)"/>
     /// <seealso cref="Notify"/>
-    /// <seealso cref="FindWinner(string[,])"/>
+    /// <seealso cref="CheckWiner(string[,])"/>
     public bool CallWinner(BoardCell[] line)
     {
         string winner;

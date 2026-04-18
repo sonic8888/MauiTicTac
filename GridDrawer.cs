@@ -92,7 +92,7 @@ public class GridDrawer : IDrawable
     /// <param name="row">Индекс строки ячейки (0-19)</param>
     /// <param name="col">Индекс столбца ячейки (0-19)</param>
     /// <returns>Точка с координатами центра ячейки</returns>
-    public PointF GetCellCenter(int row, int col)
+    public static PointF GetCellCenter(int row, int col)
     {
         float cellWidth = GridWidth / Cols;
         float cellHeight = GridHeight / Rows;
@@ -102,6 +102,10 @@ public class GridDrawer : IDrawable
 
         return new PointF(centerX, centerY);
     }
+
+
+
+
 
     /// <summary>
     /// Анимированная отрисовка крестика в заданной ячейке
@@ -123,7 +127,7 @@ public class GridDrawer : IDrawable
         float halfSize = size / 2;
 
         // Установка стиля линии
-        canvas.StrokeColor = Colors.Red;
+        canvas.StrokeColor = Colors.YellowGreen;
         canvas.StrokeSize = 8;
         canvas.StrokeLineCap = LineCap.Round;
 
@@ -214,5 +218,5 @@ public class GridDrawer : IDrawable
             );
         }
     }
- 
+
 }
