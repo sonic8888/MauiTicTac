@@ -19,6 +19,8 @@ public enum Tactics
 /// </summary>
 public class GameLogic
 {
+    private readonly GraphicsView _graphicsView;
+    private readonly AnimatedLineDrawer _drawer;
     public static Tactics CurrentTactics = Tactics.Attack;
     public static int countWinner = 5;
     public static string O = "O";
@@ -30,9 +32,12 @@ public class GameLogic
     /// <summary>
     /// Инициализирует новый экземпляр класса <see cref="GameLogic"/>.
     /// </summary>
-    public GameLogic()
+    public GameLogic(GraphicsView graphicsView)
     {
-        Notify += GameLogic.Message;
+        _graphicsView = graphicsView;
+        _drawer = new AnimatedLineDrawer();
+        _graphicsView.Drawable = _drawer; // Важно: установить drawer как drawable
+        Notify += Message;
 
     }
     /// <summary>
@@ -660,7 +665,7 @@ public class GameLogic
     }
 
 
-    public static void Message(BoardCell[] lineWinner, string winner, int winnerLostIndex)
+    public async void Message(BoardCell[] lineWinner, string winner, int winnerLostIndex)
     {
         // System.Console.WriteLine($"Winner:{winner} lostIndex:{winnerLostIndex}");
         // foreach (var cell in lineWinner)
@@ -673,6 +678,11 @@ public class GameLogic
         PointF start = GridDrawer.GetCellCenter(winerCells[0].Row, winerCells[0].Column);
         PointF end = GridDrawer.GetCellCenter(winerCells[winerCells.Length - 1].Row, winerCells[winerCells.Length - 1].Column);
         System.Console.WriteLine($"({start.X},{start.Y}) -> ({end.X},{end.Y})");
+        // GridDrawer.Instance.DrawLineAnimation(canvas, start, end, animationProgress);
+        // Запускаем анимацию
+        _drawer.StartLineAnimation(start, end);
+        // Запускаем цикл анимации
+        await AnimateLine();
     }
 
 
@@ -935,6 +945,24 @@ public class GameLogic
         }
 
         return list[0];
+    }
+
+    private async Task AnimateLine()
+    {
+        while (_drawer.IsAnimating)
+        {
+            // Обновляем прогресс (60 FPS ~ 16 мс)
+            await Task.Delay(16); // ~0.016 сек
+
+            // Обновляем анимацию
+            _drawer.UpdateAnimation(0.016f);
+
+            // Перерисовываем GraphicsView
+            _graphicsView.Dispatcher.Dispatch(() =>
+            {
+                _graphicsView.Invalidate();
+            });
+        }
     }
 }
 

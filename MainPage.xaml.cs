@@ -61,11 +61,15 @@ public partial class MainPage : ContentPage
     /// 
     private static readonly AnimatedGridDrawer animatedDrawer = new();
     private static AnimatedGridDrawer AnimatedDrawer => animatedDrawer;
+
+    public required GraphicsView _graphicsView;
     public MainPage()
     {
         InitializeComponent();
+
+        _graphicsView = GraphicsViewGrid;
         StartGame.InitBoard(StartGame.board);
-        gameLogic = new GameLogic();
+        gameLogic = new GameLogic(_graphicsView);
         // StartGame.SetBoard(StartGame.board, 20, 20, GameLogic.O);
     }
 
@@ -79,30 +83,32 @@ public partial class MainPage : ContentPage
     private async void OnGridTapped(object sender, TappedEventArgs e)
     {
 
-        if (sender is GraphicsView graphicsView)
+        // if (sender is GraphicsView graphicsView)
+        // {
+        // _graphicsView = graphicsView;
+        var tapPoint = e.GetPosition(_graphicsView);
+        if (tapPoint != null)
         {
-            var tapPoint = e.GetPosition(graphicsView);
-            if (tapPoint != null)
+            var (row, col) = GridDrawer.Instance.GetCellFromPoint(tapPoint.Value);
+            int cellIndex = row * Cols + col;
+
+            // Добавляем символ в зависимости от currentPlayer
+            animatedDrawer.AddSymbol(row, col);
+
+            // Запускаем анимацию
+            await AnimateSymbol(_graphicsView, row, col);
+
+            StartGame.SetBoard(StartGame.board, row, col, GameLogic.X);
+            if (gameLogic.CheckWiner(StartGame.board))
             {
-                var (row, col) = GridDrawer.Instance.GetCellFromPoint(tapPoint.Value);
-                int cellIndex = row * Cols + col;
-
-                // Добавляем символ в зависимости от currentPlayer
-                animatedDrawer.AddSymbol(row, col);
-
-                // Запускаем анимацию
-                await AnimateSymbol(graphicsView, row, col);
-
-                StartGame.SetBoard(StartGame.board, row, col, GameLogic.X);
-                if (gameLogic.CheckWiner(StartGame.board)){
-                    System.Console.WriteLine("Winer X");
-                }
-
-                // Меняем игрока после хода
-                currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
-                NextStep(StartGame.board, graphicsView);
+                System.Console.WriteLine("Winer X");
             }
+
+            // Меняем игрока после хода
+            currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+            NextStep(StartGame.board, _graphicsView);
         }
+        // }
     }
 
 
@@ -110,9 +116,10 @@ public partial class MainPage : ContentPage
     {
         var nextCell = gameLogic.NextMove(board);
         StartGame.SetBoard(board, nextCell.Row, nextCell.Column, GameLogic.O);
-            if (gameLogic.CheckWiner(StartGame.board)){
-                    System.Console.WriteLine("Winer O");
-                }
+        if (gameLogic.CheckWiner(StartGame.board))
+        {
+            System.Console.WriteLine("Winer O");
+        }
         animatedDrawer.AddSymbol(nextCell.Row, nextCell.Column);
         await AnimateSymbol(graphicsView, nextCell.Row, nextCell.Column);
         currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;

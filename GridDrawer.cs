@@ -219,4 +219,33 @@ public class GridDrawer : IDrawable
         }
     }
 
+    /// <summary>
+/// Анимированная отрисовка линии от начальной до конечной точки.
+/// Линия появляется постепенно, согласно прогрессу анимации.
+/// </summary>
+/// <param name="canvas">Контекст рисования</param>
+/// <param name="startPoint">Начальная точка линии</param>
+/// <param name="endPoint">Конечная точка линии</param>
+/// <param name="progress">Прогресс анимации (0.0 - не видно, 1.0 - полностью нарисовано)</param>
+public void DrawLineAnimation(ICanvas canvas, PointF startPoint, PointF endPoint, float progress)
+{
+    // Ограничиваем прогресс диапазоном [0, 1]
+    progress = Math.Clamp(progress, 0f, 1f);
+    
+    // Прекращаем отрисовку, если анимация не началась
+    if (progress == 0) return;
+
+    // Настраиваем стиль линии
+    canvas.StrokeColor = Colors.Red;
+    canvas.StrokeSize = 8;
+    canvas.StrokeLineCap = LineCap.Round; // Плавные концы линии
+
+    // Вычисляем текущую конечную точку в зависимости от прогресса
+    float currentX = startPoint.X + (endPoint.X - startPoint.X) * progress;
+    float currentY = startPoint.Y + (endPoint.Y - startPoint.Y) * progress;
+
+    // Рисуем линию от начальной точки до промежуточной (зависит от progress)
+    canvas.DrawLine(startPoint.X, startPoint.Y, currentX, currentY);
+}
+
 }
