@@ -31,7 +31,7 @@ public partial class MainPage : ContentPage
     /// </summary>
     private const int Cols = 20;
     private readonly AnimatedLineDrawer _drawer;
-    private readonly GameLogic _gameLogic;
+    private  GameLogic _gameLogic;
 
 
 
@@ -288,6 +288,26 @@ private async void OnGridTapped(object sender, TappedEventArgs e)
             }
         }
     }
+
+    private void OnNewGameClicked(object sender, EventArgs e)
+{
+    // 1. Очищаем игровое поле
+    StartGame.InitBoard(StartGame.board);
+
+    // 2. Сбрасываем отрисовщик
+    _drawer.Reset();
+
+    // 3. Перерисовываем GraphicsView
+    GraphicsViewGrid.Invalidate();
+
+    // 4. Пересоздаём GameLogic, чтобы сбросить её состояние (например, CurrentTactics)
+    _gameLogic = new GameLogic(GraphicsViewGrid, StartGame.board);
+
+    // 5. Опционально: сбрасываем текущего игрока
+    currentPlayer = Player.X;
+
+    System.Diagnostics.Debug.WriteLine("Игра перезапущена: поле и логика сброшены.");
+}
 
 
 }

@@ -131,4 +131,13 @@ public class AnimatedLineDrawer : IDrawable
 
         canvas.RestoreState();
     }
+
+    public void Reset()
+    {
+        _symbols.Clear();
+        _progress.Clear();
+        WinLineStart = null;
+        WinLineEnd = null;
+        WinLineProgress = 0f;
+    }
 }

@@ -15,6 +15,14 @@
                 <TapGestureRecognizer Tapped="OnGridTapped"/>
             </GraphicsView.GestureRecognizers>
         </GraphicsView>
+        <!-- Кнопка "Новая игра" -->
+        <Button
+            x:Name="NewGameButton"
+            Text="🔄 Новая игра"
+            FontSize="18"
+            Padding="15,10"
+            HorizontalOptions="Center"
+            Clicked="OnNewGameClicked"/>
     </VerticalStackLayout>
 
 </ContentPage>
