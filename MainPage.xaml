@@ -9,12 +9,10 @@
             x:Name="GraphicsViewGrid"
             WidthRequest="800"
             HeightRequest="800"
-            Drawable="{x:Static local:MainPage.AnimatedDrawer}"
             HorizontalOptions="Center"
-            VerticalOptions="Center"
-            >
+            VerticalOptions="Center">
             <GraphicsView.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnGridTapped" />
+                <TapGestureRecognizer Tapped="OnGridTapped"/>
             </GraphicsView.GestureRecognizers>
         </GraphicsView>
     </VerticalStackLayout>

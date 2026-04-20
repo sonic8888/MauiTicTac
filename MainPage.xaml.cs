@@ -30,47 +30,27 @@ public partial class MainPage : ContentPage
     /// Количество столбцов в сетке игры
     /// </summary>
     private const int Cols = 20;
-    private GameLogic gameLogic;
-
-    /// <summary>
-    /// Статический экземпляр анимированного drawer для отрисовки игровых элементов
-    /// Управляет отрисовкой анимированных крестиков
-    /// </summary>
-    // private static readonly AnimatedGridDrawerCross animatedDrawerCross = new();
+    private readonly AnimatedLineDrawer _drawer;
+    private readonly GameLogic _gameLogic;
 
 
-    // private static readonly AnimatedGridDrawerCircle animatedDrawerCircle = new();
 
-    /// <summary>
-    /// Свойство для доступа к анимированному drawer
-    /// Используется для привязки в XAML
-    /// </summary>
 
-    /// <summary>
-    /// Свойство для доступа к анимированному drawer
-    /// Используется для привязки в XAML
-    /// </summary>
-    // private static AnimatedGridDrawerCross AnimatedDrawerCross => animatedDrawerCross;
-    // private static AnimatedGridDrawerCircle AnimatedDrawerCircle => animatedDrawerCircle;
 
-    /// <summary>
-    /// Конструктор класса MainPage
-    /// Инициализирует компоненты пользовательского интерфейса
-    /// </summary>
-    /// 
-    /// 
-    private static readonly AnimatedGridDrawer animatedDrawer = new();
-    private static AnimatedGridDrawer AnimatedDrawer => animatedDrawer;
 
-    public required GraphicsView _graphicsView;
+
+
+    // public required GraphicsView _graphicsView = new();
     public MainPage()
     {
         InitializeComponent();
 
-        _graphicsView = GraphicsViewGrid;
+        // Создаём единый Drawer
+        _drawer = new AnimatedLineDrawer();
+        GraphicsViewGrid.Drawable = _drawer;
+        // Инициализируем логику
         StartGame.InitBoard(StartGame.board);
-        gameLogic = new GameLogic(_graphicsView);
-        // StartGame.SetBoard(StartGame.board, 20, 20, GameLogic.O);
+        _gameLogic = new GameLogic(GraphicsViewGrid, StartGame.board);
     }
 
     /// <summary>
@@ -80,50 +60,54 @@ public partial class MainPage : ContentPage
     /// </summary>
     /// <param name="sender">Объект, отправивший событие (GraphicsView)</param>
     /// <param name="e">Аргументы события нажатия, содержащие координаты клика</param>
-    private async void OnGridTapped(object sender, TappedEventArgs e)
+private async void OnGridTapped(object sender, TappedEventArgs e)
     {
+        if (sender is not GraphicsView graphicsView) return;
 
-        // if (sender is GraphicsView graphicsView)
-        // {
-        // _graphicsView = graphicsView;
-        var tapPoint = e.GetPosition(_graphicsView);
-        if (tapPoint != null)
+        var tapPoint = e.GetPosition(graphicsView);
+        if (tapPoint == null) return;
+
+        var (row, col) = GridDrawer.Instance.GetCellFromPoint(tapPoint.Value);
+
+        // Проверь, что ячейка пуста
+        if (StartGame.board[row, col] != " ") return;
+
+        // Ход игрока X
+        _drawer.AddSymbol(row, col, "X");
+        await AnimateSymbol(graphicsView, row, col);
+        StartGame.SetBoard(StartGame.board, row, col, "X");
+
+        if (_gameLogic.CheckWiner(StartGame.board))
         {
-            var (row, col) = GridDrawer.Instance.GetCellFromPoint(tapPoint.Value);
-            int cellIndex = row * Cols + col;
-
-            // Добавляем символ в зависимости от currentPlayer
-            animatedDrawer.AddSymbol(row, col);
-
-            // Запускаем анимацию
-            await AnimateSymbol(_graphicsView, row, col);
-
-            StartGame.SetBoard(StartGame.board, row, col, GameLogic.X);
-            if (gameLogic.CheckWiner(StartGame.board))
-            {
-                System.Console.WriteLine("Winer X");
-            }
-
-            // Меняем игрока после хода
-            currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
-            NextStep(StartGame.board, _graphicsView);
+            System.Console.WriteLine("Player X wins!");
+            return;
         }
-        // }
-    }
 
-
-    private async void NextStep(string[,] board, GraphicsView graphicsView)
-    {
-        var nextCell = gameLogic.NextMove(board);
-        StartGame.SetBoard(board, nextCell.Row, nextCell.Column, GameLogic.O);
-        if (gameLogic.CheckWiner(StartGame.board))
-        {
-            System.Console.WriteLine("Winer O");
-        }
-        animatedDrawer.AddSymbol(nextCell.Row, nextCell.Column);
+        // Ход ИИ (O)
+        var nextCell = _gameLogic.NextMove(StartGame.board);
+        _drawer.AddSymbol(nextCell.Row, nextCell.Column, "O");
         await AnimateSymbol(graphicsView, nextCell.Row, nextCell.Column);
-        currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+        StartGame.SetBoard(StartGame.board, nextCell.Row, nextCell.Column, "O");
+
+        if (_gameLogic.CheckWiner(StartGame.board))
+        {
+            System.Console.WriteLine("Player O wins!");
+        }
     }
+
+
+    // private async void NextStep(string[,] board, GraphicsView graphicsView)
+    // {
+    //     var nextCell = gameLogic.NextMove(board);
+    //     StartGame.SetBoard(board, nextCell.Row, nextCell.Column, GameLogic.O);
+    //     if (gameLogic.CheckWiner(StartGame.board))
+    //     {
+    //         System.Console.WriteLine("Winer O");
+    //     }
+    //     animatedDrawer.AddSymbol(nextCell.Row, nextCell.Column);
+    //     await AnimateSymbol(graphicsView, nextCell.Row, nextCell.Column);
+    //     currentPlayer = currentPlayer == Player.X ? Player.O : Player.X;
+    // }
     /// <summary>
     /// Анимирует процесс рисования крестика в указанной ячейке
     /// Разбивает анимацию на несколько шагов для плавного визуального эффекта
@@ -175,13 +159,13 @@ public partial class MainPage : ContentPage
 
     private async Task AnimateSymbol(GraphicsView graphicsView, int row, int col)
     {
-        const int animationSteps = 30;
+        const int steps = 30;
         const int delayMs = 30;
 
-        for (int i = 1; i <= animationSteps; i++)
+        for (int i = 1; i <= steps; i++)
         {
-            float progress = (float)i / animationSteps;
-            animatedDrawer.SetProgress(row, col, progress);
+            float progress = (float)i / steps;
+            _drawer.SetProgress(row, col, progress);
             graphicsView.Invalidate();
             await Task.Delay(delayMs);
         }

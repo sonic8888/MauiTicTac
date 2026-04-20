@@ -21,22 +21,37 @@ public class GameLogic
 {
     private readonly GraphicsView _graphicsView;
     private readonly AnimatedLineDrawer _drawer;
+    private string[,] _board;
     public static Tactics CurrentTactics = Tactics.Attack;
     public static int countWinner = 5;
     public static string O = "O";
     public static string X = "X";
     public static string Empty = " ";
 
+
     public delegate void WinnerMessage(BoardCell[] line, string winner, int winnerLostIndex);
     event WinnerMessage? Notify;
     /// <summary>
     /// Инициализирует новый экземпляр класса <see cref="GameLogic"/>.
     /// </summary>
-    public GameLogic(GraphicsView graphicsView)
+    public GameLogic(GraphicsView graphicsView, string[,] board)
     {
         _graphicsView = graphicsView;
-        _drawer = new AnimatedLineDrawer();
-        _graphicsView.Drawable = _drawer; // Важно: установить drawer как drawable
+        _board = board;
+
+        // Получаем существующий Drawer из GraphicsView
+        // Если его нет — создаём новый
+        if (_graphicsView.Drawable is AnimatedLineDrawer existingDrawer)
+        {
+            _drawer = existingDrawer;
+        }
+        else
+        {
+            _drawer = new AnimatedLineDrawer();
+            _graphicsView.Drawable = _drawer;
+        }
+
+        // Подписываемся на событие
         Notify += Message;
 
     }
@@ -667,22 +682,16 @@ public class GameLogic
 
     public async void Message(BoardCell[] lineWinner, string winner, int winnerLostIndex)
     {
-        // System.Console.WriteLine($"Winner:{winner} lostIndex:{winnerLostIndex}");
-        // foreach (var cell in lineWinner)
-        //     System.Console.WriteLine($"({cell.Row},{cell.Column}) = {cell.Player}");
         BoardCell[] winerCells = new BoardCell[5];
         Array.Copy(lineWinner, winnerLostIndex - 4, winerCells, 0, 5);
-        // System.Console.WriteLine("////////////////////////////////////////////////////////////");
-        // foreach (var cell in winerCells)
-        //     System.Console.WriteLine($"({cell.Row},{cell.Column}) = {cell.Player}");
+
         PointF start = GridDrawer.GetCellCenter(winerCells[0].Row, winerCells[0].Column);
-        PointF end = GridDrawer.GetCellCenter(winerCells[winerCells.Length - 1].Row, winerCells[winerCells.Length - 1].Column);
-        System.Console.WriteLine($"({start.X},{start.Y}) -> ({end.X},{end.Y})");
-        // GridDrawer.Instance.DrawLineAnimation(canvas, start, end, animationProgress);
-        // Запускаем анимацию
-        _drawer.StartLineAnimation(start, end);
-        // Запускаем цикл анимации
-        await AnimateLine();
+        PointF end = GridDrawer.GetCellCenter(winerCells[4].Row, winerCells[4].Column);
+
+        // ✅ Только запускаем анимацию!
+        _drawer.StartWinLineAnimation(start, end);
+
+        await AnimateWinLine();
     }
 
 
@@ -947,21 +956,13 @@ public class GameLogic
         return list[0];
     }
 
-    private async Task AnimateLine()
+    private async Task AnimateWinLine()
     {
-        while (_drawer.IsAnimating)
+        while (_drawer.IsWinLineAnimating)
         {
-            // Обновляем прогресс (60 FPS ~ 16 мс)
-            await Task.Delay(16); // ~0.016 сек
-
-            // Обновляем анимацию
-            _drawer.UpdateAnimation(0.016f);
-
-            // Перерисовываем GraphicsView
-            _graphicsView.Dispatcher.Dispatch(() =>
-            {
-                _graphicsView.Invalidate();
-            });
+            await Task.Delay(16); // ~60 FPS
+            _drawer.UpdateWinLine(0.016f);
+            _graphicsView.Dispatcher.Dispatch(() => _graphicsView.Invalidate());
         }
     }
 }
