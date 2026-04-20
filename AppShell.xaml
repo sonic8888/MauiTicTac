@@ -7,7 +7,7 @@
     Title="MauiTicTac">
 
     <ShellContent
-        Title="Home"
+        Title="TicTac"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
